@@ -1,0 +1,79 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.ArrayList;
+import javax.swing.*;
+
+public class InventionTrackerGUI {
+   static ArrayList<String> inventionList = new ArrayList<>();
+
+   private static void saveInventions() {
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter("inventions.txt"))) {
+         for (String invention : inventionList) {
+            writer.write(invention);
+            writer.newLine();
+         }
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
+
+   private static void loadInventions() {
+      try (BufferedReader reader = new BufferedReader(new FileReader("inventions.txt"))) {
+         String invention;
+         while ((invention = reader.readLine()) != null) {
+            inventionList.add(invention);
+         }
+      } catch (FileNotFoundException e) {
+         System.out.println("No saved inventions found.");
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
+
+   public static void main(String[] args) {
+      JFrame frame = new JFrame("Invention Tracker");
+      Container content = frame.getContentPane();
+      content.setLayout(new BorderLayout());
+
+      JTextArea inventionArea = new JTextArea();
+      for (String invention : inventionList) {
+         inventionArea.append(invention + "\n");
+      }
+
+      JScrollPane scrollPane = new JScrollPane(inventionArea);
+      content.add(scrollPane, BorderLayout.CENTER);
+
+      JPanel panel = new JPanel();
+      panel.setLayout(new FlowLayout());
+
+      JTextField inventionField = new JTextField(20);
+      JButton addButton = new JButton("Add");
+      addButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            String invention = inventionField.getText();
+            inventionList.add(invention);
+            inventionArea.append(invention + "\n");
+            inventionField.setText("");
+         }
+      });
+      panel.add(inventionField);
+      panel.add(addButton);
+
+      JButton saveButton = new JButton("Save");
+      saveButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            saveInventions();
+         }
+      });
+      panel.add(saveButton);
+
+      content.add(panel, BorderLayout.SOUTH);
+
+      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      frame.pack();
+      frame.setVisible(true);
+
+      loadInventions();
+   }
+}
